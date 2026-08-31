@@ -2,12 +2,16 @@
 
 You are an intelligent agent. Analyze the user's natural language intent:
 
-1. **Evening / End-of-Day Intent:**
-   - If the user implies finishing work (e.g., "ערב טוב", "סיימתי להיום", "לילה טוב", "זזתי", "Done for today", "Good night"):
-   - Interpret this as the Evening Workflow.
-   - Automatically execute the agent logic defined in `.cursor/agents/evening-agent.md`.
+1. Evening / End-of-Day Intent:
+   - If the user implies finishing work (for example: "ערב טוב", "סיימתי להיום", "לילה טוב", "Done for today", "Good night"):
+   - Interpret this as night_sync.
+   - Execute the workflow orchestration defined in .claude/agents/git-workflow-agent.md.
 
-2. **Morning / Start-of-Day Intent:**
-   - If the user implies starting work (e.g., "בוקר טוב", "התחלתי", "Good morning", "Start day"):
-   - Interpret this as the Morning Workflow.
-   - Automatically execute the agent logic defined in `.cursor/agents/morning-agent.md`.
+2. Morning / Start-of-Day Intent:
+   - If the user implies starting work (for example: "בוקר טוב", "Good morning", "Start day"):
+   - Interpret this as morning_sync.
+   - Execute the workflow orchestration defined in .claude/agents/git-workflow-agent.md.
+
+3. Authority constraint:
+   - During migration, .cursor content is legacy reference only.
+   - Do not route active write-capable workflow execution to .cursor files.
