@@ -15,6 +15,8 @@ Single workflow orchestrator for daily Git operations under the Claude architect
 - morning_sync
 - night_sync
 
+These are the only daily automatic workflows in this architecture.
+
 ## Trigger Interpretation
 - User input "בוקר טוב" -> run morning_sync
 - User input "לילה טוב" -> run night_sync
@@ -33,6 +35,11 @@ Operational knowledge file:
 Verification helper file:
 - .claude/hooks/quality-gate.md
 
+Execution boundary:
+- Use Local Git for repository-local operations.
+- Use GitHub MCP only for GitHub-level data/actions that are truly required.
+- If MCP is unavailable, continue with Local Git path and report the limitation explicitly.
+
 ## Decision Process
 1. Identify whether the request matches a supported trigger.
 2. Resolve repository context.
@@ -42,6 +49,8 @@ Verification helper file:
 6. Enforce stop conditions immediately when triggered.
 7. Verify quality gate requirements.
 8. Produce standardized outcome report.
+
+If repository context cannot be resolved confidently, stop immediately.
 
 ## Workflow Execution Order
 
@@ -79,10 +88,17 @@ Expected success report:
 9. Push current task branch.
 10. Verify push result and report outcome.
 
+After successful night_sync, the agent may recommend a separate integration step to dev,
+but must not execute integration-to-dev implicitly as part of night_sync.
+
 Night_sync boundaries:
 - Must not automatically merge feature into dev.
 - Must not push dev.
 - Must not delete the task branch.
+
+Integration policy note:
+- Task integration into dev is a separate controlled workflow and must be executed explicitly.
+- Task branch deletion is allowed only after successful integration to dev is verified.
 
 Expected success report:
 - 🌙 Night Sync
@@ -130,6 +146,48 @@ Use standardized result formats for:
 - Successful night_sync
 - No-op night_sync
 - Stopped workflow
+
+### Report Templates
+
+Morning success template:
+- ☀️ Morning Sync
+- Repository: <repository>
+- Branch: <branch>
+- ✓ Working tree safe
+- ✓ Latest dev fetched
+- ✓ Dev status checked
+- ✓ Merge completed or already up to date
+- ✓ No conflicts
+- ✓ Quality Gate passed
+- READY TO WORK
+
+Night success template:
+- 🌙 Night Sync
+- Repository: <repository>
+- Branch: <branch>
+- ✓ Changes detected
+- ✓ Safety checks passed
+- ✓ Commit created
+- ✓ Push completed
+- Commit: <commit>
+- Your work is safely stored on GitHub.
+
+Night no-op template:
+- 🌙 Night Sync
+- Repository: <repository>
+- Branch: <branch>
+- ✓ No changes detected
+- ✓ Nothing to commit
+- ✓ Repository already synchronized
+- NO ACTION REQUIRED
+
+Stopped template:
+- 🛑 Workflow stopped
+- Workflow: <morning_sync|night_sync>
+- Repository: <repository>
+- Branch: <branch if known>
+- Reason: <clear reason>
+- Action taken: Stopped without destructive recovery.
 
 ## Migration Safety Constraint
 During architecture migration, this agent must not operate in parallel write-authority with legacy .cursor automation for the same workflow intent.

@@ -12,6 +12,11 @@ Canonical policy authority:
 Before any state-changing Git operation, the orchestrator must run the relevant verification sequence below.
 If any check fails, stop immediately and report the failure.
 
+Test command policy:
+- If repository defines an explicit project test command, run it.
+- If no test command is discoverable, report "tests not configured" and treat quality gate as partial.
+- Do not invent destructive, unrelated, or speculative commands.
+
 ## Morning Sync Verification Sequence
 Goal: verify safety before and after merging dev into the current task branch.
 
@@ -28,6 +33,11 @@ Merge checks:
 Post-merge checks:
 1. Required tests/checks pass.
 2. Repository remains in a valid state.
+
+Morning gate result mapping:
+- PASS: all required checks passed.
+- PARTIAL: no test command discoverable but all other required checks passed.
+- FAIL: any required check failed.
 
 If all checks pass, morning_sync may report readiness.
 
@@ -46,6 +56,10 @@ Commit/push checks:
 1. Commit is meaningful and non-empty.
 2. Push of current task branch succeeds.
 3. Push result is verified.
+
+Night gate result mapping:
+- PASS: all required checks passed and push verified.
+- FAIL: any required check failed.
 
 If all checks pass, night_sync may report success.
 

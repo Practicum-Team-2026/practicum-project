@@ -48,6 +48,39 @@ Use local Git for repository-local checks and operations, including:
 Use GitHub-level operations only when local Git is insufficient and only when MCP is configured and necessary.
 If MCP is unavailable, continue with local Git capability and report the limitation clearly.
 
+Decision tree:
+1. Can this be answered/executed with local Git reliably?
+	- Yes: use local Git.
+	- No: use MCP if configured.
+2. If MCP is not configured/available:
+	- Do not fake MCP usage.
+	- Continue with local capability when safe.
+	- Report exactly what could not be validated via MCP.
+
+MCP capability boundary (minimum useful set for this architecture):
+- Repository metadata read (default branch, branch existence, visibility)
+- Branch metadata read (protection, status context where available)
+- Optional PR-related metadata read when integration workflow is introduced
+
+Preferred MCP usage points (when available):
+- Validate default branch and branch existence before sensitive branch-policy decisions.
+- Read branch protection state for governance visibility.
+- Validate remote branch head metadata if local view is ambiguous.
+
+Out of scope for current daily workflows:
+- Direct content editing through MCP
+- Broad organization-wide mutation capabilities
+- Any MCP action that duplicates reliable local Git behavior
+
+## Token Efficiency Guidance
+Decision rule:
+- Prefer local Git for high-frequency daily operations (status/fetch/merge/add/commit/push).
+- Use MCP only for GitHub-level facts or actions not available reliably from local Git.
+
+Rationale:
+- Local Git operations are concise, deterministic, and generally cheaper in token overhead.
+- MCP calls are valuable for remote policy/metadata visibility but should stay minimal to avoid unnecessary context expansion.
+
 ## Repository-State Interpretation
 State categories:
 - Clean: no tracked/untracked changes affecting workflow safety

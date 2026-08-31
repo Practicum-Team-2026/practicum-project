@@ -24,6 +24,8 @@ The workflow must stop immediately when:
 - Developer performs daily work on task branch.
 - Morning sync updates the task branch from dev when needed.
 - Night sync commits and pushes only from the task branch.
+- Integration from task branch into dev is a separate explicit workflow, not an implicit night_sync side effect.
+- Task branch cleanup (deletion) is allowed only after successful integration to dev is verified.
 
 ## Protected Branch Constraint
 - Daily workflows must never perform direct commit, merge, or push operations on main.
